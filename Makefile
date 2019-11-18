@@ -27,7 +27,6 @@ server:
 local: test-local cli-local server-local
 
 test-local:
-	go test ./pkg/portcheck
 	go test ./cmd/portcheck
 	go test ./cmd/portcheck-server
 
