@@ -21,7 +21,7 @@ portcheck-server -p 2000 -u > /tmp/serverlogs.out
 Then, connect via the port range specified by your client:
 
 ```
-portcheck -p 30000-50000  -u  [myhost@mynet]:2000 > /tmp/clientlogs.out
+portcheck -p 30000-50000  -u  [myhost.mynet]:2000 > /tmp/clientlogs.out
 ```
 
 The client sends a quick "Hi I'm connecting from [IP]:[port]" message, which the server logs, and the client logs any port that is unable to connect.
