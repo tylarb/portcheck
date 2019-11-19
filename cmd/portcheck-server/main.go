@@ -35,11 +35,15 @@ var listenPort int
 var tcp bool
 var udp bool
 var listenType string
+var bufferSize int
+var verbose bool
 
 func init() {
 	rootCmd.PersistentFlags().IntVarP(&listenPort, "port", "p", 0, "port for server to listen on")
 	rootCmd.PersistentFlags().BoolVarP(&tcp, "tcp", "t", false, "check tcp ports")
 	rootCmd.PersistentFlags().BoolVarP(&udp, "udp", "u", false, "check udp ports")
+	rootCmd.PersistentFlags().IntVarP(&bufferSize, "buffersize", "s", 1500, "size of read buffer, recommened to set to MTU")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Debug level logs")
 }
 
 func startServer() error {
@@ -64,9 +68,17 @@ func startTCPServer() error {
 		}
 		go func(c net.Conn) {
 			addr := c.RemoteAddr()
-			var b []byte
-			c.Read(b)
-			fmt.Printf("TCP packet received from %s: %s\n", addr.String(), string(b))
+			b := make([]byte, bufferSize)
+			length, err := c.Read(b)
+			if err != nil {
+				fmt.Printf("error on packet read: %q", err)
+			}
+
+			fmt.Printf("TCP packet received from %s size %d bytes\n", addr.String(), length)
+			if verbose {
+				fmt.Printf("message: %s\n", string(b))
+			}
+
 			c.Close()
 		}(conn)
 	}
@@ -78,15 +90,24 @@ func startUDPServer() error {
 		return err
 	}
 	defer l.Close()
-	for {
-		var b []byte
-		_, addr, err := l.ReadFrom(b)
-		if err != nil {
-			fmt.Printf("error on packet read: %q", err)
+	doneChan := make(chan error, 1)
+	go func() {
+		for {
+			b := make([]byte, bufferSize)
+			length, addr, err := l.ReadFrom(b)
+			if err != nil {
+				fmt.Printf("error on packet read: %q", err)
+			}
+			fmt.Printf("UDP packet received from %s size %d bytes\n", addr.String(), length)
+			if verbose {
+				fmt.Printf("message: %s\n", string(b))
+			}
 		}
-		fmt.Printf("UDP packet received from %s: %s\n", addr.String(), string(b))
-
+	}()
+	select {
+	case err = <-doneChan:
 	}
+	return err
 }
 
 func main() {

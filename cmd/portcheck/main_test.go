@@ -30,3 +30,25 @@ func TestParsePorts(t *testing.T) {
 	assert.Error(t, err)
 
 }
+
+func TestComposeByteMessage(t *testing.T) {
+	headerString := "header"
+	footerString := "footer"
+
+	header := []byte(headerString)
+	footer := []byte(footerString)
+
+	composedSize := 500
+
+	composedBytes := composeByteMessage(header, footer, composedSize)
+
+	// length of composed bytes is size passed into function
+	assert.Equal(t, 500, len(composedBytes))
+
+	// first len(header) bytes of composed == header
+	assert.Equal(t, header, composedBytes[:len(header)])
+
+	// last len(footer) bytes of composed == footer
+	assert.Equal(t, footer, composedBytes[composedSize-len(footer):])
+
+}
