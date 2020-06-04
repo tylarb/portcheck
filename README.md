@@ -52,7 +52,7 @@ udp6       0      0 2606:a000:1125:43:60791 2404:6800:4004:818::443 ESTABLISHED 
 udp6       0      0 2606:a000:1125:43:45643 2404:6800:4003:c04::443 ESTABLISHED 27187/chrome --type 
 ```
 
-As a debugging tool, it's critial that you use this on a reliable network, and without any other network activities running which might block port access in an expected way.
+As a debugging tool, it's critical that you use this on a reliable network, and without any other network activities running which might block port access in an expected way.
 
 
 
